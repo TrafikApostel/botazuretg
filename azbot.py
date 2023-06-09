@@ -16,7 +16,8 @@ cur.execute("""CREATE TABLE IF NOT EXISTS servers(
    time_add Text,
    status Text,
    status_use Text,
-   time_die Text
+   time_die Text,
+   money Text
    );
 """)
 conn.commit()
@@ -52,7 +53,7 @@ def get_text_messages(message):
             i = 1
             acs=[]
             for order in all_orders:
-                if order[-3] == 'good' and order[-2] == 'new':
+                if order[-4] == 'good' and order[-3] == 'new':
                     i += 1
                     sqlite_update_query = """Update servers set status_use = ? where ip = ?"""
                     cur.executemany(sqlite_update_query, [('old', order[3])])
@@ -74,14 +75,14 @@ def get_text_messages(message):
             w = 0
             for order in all_orders:
                 print(order)
-                if order[-3] == 'good':
+                if order[-4] == 'good':
                     x+=1
-                if order[-2] == 'new':
+                if order[-3] == 'new':
                     y += 1
-                if order[-3] == 'hz':
+                if order[-4] == 'hz':
                     z += 1
                     bot.send_message(message.from_user.id,f'Проверьте аккаунт {order[1]}|{order[2]} сервер {order[3]} не даёт ответ')
-                if order[-3] == 'die':
+                if order[-4] == 'die':
                     w+=1
             bot.send_message(message.from_user.id,f'Живых {x} Новых {y} Ошибок {z} Мёртвых {w}')
         elif message.text == '/all' and message.from_user.username == 'HelloUserName0':
@@ -89,6 +90,20 @@ def get_text_messages(message):
             all_orders = cur.fetchall()
             for order in all_orders:
                 bot.send_message(message.from_user.id, f'{order}')
+        elif message.text == '/pay':#and message.from_user.username == 'HelloUserName0'
+            acs_pay = {}
+            records = cur.execute("SELECT * FROM servers")
+            all_orders = cur.fetchall()
+            for order in all_orders:
+                if order[-1] == 'pay':
+                    try:
+                        acs_pay[order[0]] =acs_pay[order[0]]+1
+                    except:
+                        acs_pay[order[0]]=1
+            for ac_pay in acs_pay:
+                bot.send_message(message.from_user.id,f'Пользователь {str(ac_pay)} колличестов машин {acs_pay[ac_pay]}')
+                sqlite_update_query = """Update servers set money = ? where userid = ?"""
+                cur.executemany(sqlite_update_query, [('good', ac_pay)])
         else:
             bot.send_message(message.from_user.id, f'Я не понимаю о чём вы')
     except Exception as e:
@@ -124,16 +139,16 @@ def step_pas(message):
                                           'login2': accaunts[message.from_user.id]['login2'],
                                           'pas2': pas}
         data = (message.from_user.id, accaunts[message.from_user.id]['email'], accaunts[message.from_user.id]['password'], accaunts[message.from_user.id]['ip1'], accaunts[message.from_user.id]['login1'],
-                accaunts[message.from_user.id]['pas1'],f'{datetime.date.today()} {datetime.datetime.now().hour}:{datetime.datetime.now().minute}','good','new','')
-        cur.execute("INSERT INTO servers VALUES(?, ?, ?, ?, ?, ?, ?,?,?,?);", data)
+                accaunts[message.from_user.id]['pas1'],f'{datetime.date.today()} {datetime.datetime.now().hour}:{datetime.datetime.now().minute}','good','new','','wait')
+        cur.execute("INSERT INTO servers VALUES(?, ?, ?, ?, ?, ?, ?,?,?,?,?);", data)
         conn.commit()
         data = (
         message.from_user.id, accaunts[message.from_user.id]['email'], accaunts[message.from_user.id]['password'],
         accaunts[message.from_user.id]['ip2'],
         accaunts[message.from_user.id]['login2'],
         accaunts[message.from_user.id]['pas2'],
-        f'{datetime.date.today()} {datetime.datetime.now().hour}:{datetime.datetime.now().minute}', 'good','new','')
-        cur.execute("INSERT INTO servers VALUES(?, ?, ?, ?, ?, ?, ?,?,?,?);", data)
+        f'{datetime.date.today()} {datetime.datetime.now().hour}:{datetime.datetime.now().minute}', 'good','new','','wait')
+        cur.execute("INSERT INTO servers VALUES(?, ?, ?, ?, ?, ?, ?,?,?,?,?);", data)
         conn.commit()
         bot.send_message(message.from_user.id, f'Вы успешно добавили аккаунт {accaunts[message.from_user.id]}', reply_markup=markup)
     except Exception:
@@ -176,7 +191,7 @@ def step_ip(message):
     records = cur.execute("SELECT * FROM servers")
     all_orders = cur.fetchall()
     for order in all_orders:
-        if order[3] == ip and order[-3] == 'good':
+        if order[3] == ip and order[-4] == 'good':
             msg = bot.send_message(message.from_user.id, f'Такой ip уже записан. Введите новый', reply_markup=exit)
             return bot.register_next_step_handler(msg, step_ip)
     try:
@@ -258,15 +273,15 @@ def callback_inline(call):
             for order in all_orders:
                 if order[0] != call.from_user.id:
                     continue
-                if order[-3] == 'good':
+                if order[-4] == 'good':
                     x += 1
-                if order[-2] == 'new':
+                if order[-3] == 'new':
                     y += 1
-                if order[-3] == 'hz':
+                if order[-4] == 'hz':
                     z += 1
                     bot.send_message(call.from_user.id,
                                      f'Проверьте аккаунт {order[1]}|{order[2]} сервер {order[3]} не даёт ответ')
-                if order[-3] == 'die':
+                if order[-4] == 'die':
                     w += 1
             bot.send_message(call.from_user.id, f'Живых {x} Новых {y} Ошибок {z} Мёртвых {w}',reply_markup=exit)
         elif call.data == 'del':
