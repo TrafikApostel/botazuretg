@@ -21,7 +21,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS servers(
    );
 """)
 conn.commit()
-bot = telebot.TeleBot('5132154168:AAEgK7eG6_6rV2GOoE2E3ttoYsLIa_mh-uQ')
+bot = telebot.TeleBot('6167631724:AAHsvrI5EDAjwYqCfasc8bjVNv-sqwQrVV8')
 accaunts = {}
 def cheack(ip):
     try:
