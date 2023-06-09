@@ -46,7 +46,7 @@ def get_text_messages(message):
             btn4 = types.InlineKeyboardButton("Починить аккаунт", callback_data='error')
             markup.add(btn1,btn3)
             markup.add(btn4,btn2)
-            bot.send_message(message.from_user.id,'Ебать функциОнал',reply_markup=markup)
+            bot.send_message(message.from_user.id,'Меню',reply_markup=markup)
         elif message.text.split(' ')[0] == '/give' and message.from_user.username == 'HelloUserName0':
             records = cur.execute("SELECT * FROM servers")
             all_orders = cur.fetchall()
@@ -226,7 +226,7 @@ def step_email(message):
     all_orders = cur.fetchall()
     for order in all_orders:
         if order[1] == email:
-            msg = bot.send_message(message.from_user.id, 'Почта уже использована.Введите другую почту')
+            msg = bot.send_message(message.from_user.id, 'Почта уже использована.Введите другую почту',reply_markup=exit)
             return bot.register_next_step_handler(msg, step_email)
     accaunts[message.from_user.id] = {'email':email}
     msg = bot.send_message(message.from_user.id,f'Введите пароль',reply_markup=exit)
@@ -262,7 +262,7 @@ def callback_inline(call):
             msg = bot.send_message(call.from_user.id,'введите почту')
             bot.register_next_step_handler(msg, step_email)
         elif call.data == 'exit':
-            bot.send_message(call.from_user.id, 'Ебать функциОнал',reply_markup=markup)
+            bot.send_message(call.from_user.id, 'Меню',reply_markup=markup)
         elif call.data == 'statistic':
             records = cur.execute("SELECT * FROM servers")
             all_orders = cur.fetchall()
