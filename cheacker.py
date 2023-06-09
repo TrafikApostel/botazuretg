@@ -33,8 +33,8 @@ while True:
     for order in all_orders:
         r = cheack(order[3])
         if r == False:
-            sqlite_update_query = """Update servers set status = ? where email = ?"""
-            cur.executemany(sqlite_update_query, [('hz', order[1])])
+            sqlite_update_query = """Update servers set status = ?, time_die = ? where email = ?"""
+            cur.executemany(sqlite_update_query, [('hz',f'{datetime.date.today()} {datetime.datetime.now().hour}:{datetime.datetime.now().minute}' ,order[1])])
             conn.commit()
     sleep(10000)
     sleep(10000)
